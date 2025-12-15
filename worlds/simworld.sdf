@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<sdf version="1.9">
+    <world name="trilateration_world">
+
+        <physics name="physics" type="ode">
+            <max_step_size>0.01</max_step_size>
+            <real_time_factor>1.0</real_time_factor>
+        </physics>
+
+        <include>
+            <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Sun</uri>
+        </include>
+
+        <include>
+            <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Ground Plane</uri>
+        </include>
+
+        <include>
+            <uri>model://ground_station</uri>
+            <name>GS1</name>
+            <pose>0 0 0 0 0 0</pose>
+        </include>
+
+        <include>
+            <uri>model://ground_station</uri>
+            <name>GS2</name>
+            <pose>80 0 0 0 0 0</pose>
+        </include>
+
+        <include>
+            <uri>model://ground_station</uri>
+            <name>GS3</name>
+            <pose>40 69.28 0 0 0 0</pose>
+        </include>
+
+        <include>
+            <uri>model://drone</uri>
+            <pose>40 30 10 0 0 0</pose>
+        </include>
+    </world>
+</sdf>
