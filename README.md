@@ -13,6 +13,7 @@ git clone https://github.com/nixnord/drone_localization.git
 
 2. Build package
 ```bash
+cd drone_localization
 colcon build
 ```
 
@@ -20,6 +21,12 @@ colcon build
 ```bash
 export GZ_SIM_RESOURCE_PATH=complete-path/drone_localization/models
 ```
+
+<b>OPTIONAL:</b> Check if you have the `ros_gz_bridge` package installed.
+```bash
+ros2 pkg list | grep ros_gz_bridge
+```
+If you don't get any output, install it referring from the [documentation](https://github.com/gazebosim/ros_gz/tree/ros2/ros_gz_bridge)
 
 <h2>Usage</h2>
 
@@ -29,49 +36,18 @@ export GZ_SIM_RESOURCE_PATH=complete-path/drone_localization/models
 gz sim worlds/simworld.sdf
 ```
 <hr>
-<b>Step 2</b> Run Gazebo - ROS2 bridge
-
-```bash
-ros2 run ros_gz_bridge parameter_bridge world/trilateration_world/dynamic_pose/info@geometry_msgs/msg/PoseArray[gz.msgs.Pose_V
-```
-
-This will bridge Gazebo and ROS2 topics essential for nodes to run.
-<hr>
-<b>Step 3</b> Source the package and nodes
+<b>Step 2</b> Source the package
 
 ```bash
 source install/setup.bash
 ```
 <hr>
-<b>Step 4</b> Run the distance calculator node (RangeFinder)
+<b>Step 3</b> Launch ROS2 Nodes
 
 ```bash
-ros2 run trilateration_nodes rangefinder
+ros2 launch trilateration_nodes nodes.launch.py
 ```
-
-This node will calculate distance of drone from each of the three ground stations
+<p>The above command will also launch Rviz2 which will show the realtime estimates of the position of the drone.</p>
 <hr>
-<b>Step 5</b> Run the trilateration node
-
-```bash
-ros2 run trilateration_nodes trilateration_node
-```
-
-This will estimate the drone coordinates using trilateration
-<hr>
-<b>Step 6</b> Run Rviz2 (For position/trajectory visualization)
-
-```bash
-rviz2 -d config.rviz
-```
-<hr>
-<b>Step 7</b> Run visualizer node (Feeds data to Rviz)
-
-```bash
-ros2 run trilateration_nodes visualizernode
-```
-<hr>
-All nodes must be running parallely for results.
-The installation/deploying process is tedious as of now so I will be uploading the launch files in the next commit which will simplify it.
 
 
