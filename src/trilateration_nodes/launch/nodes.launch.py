@@ -1,12 +1,27 @@
 import launch
-from launch.actions import RegisterEventHandler, LogInfo
+from launch.actions import RegisterEventHandler, LogInfo, SetEnvironmentVariable, IncludeLaunchDescription
+from ament_index_python import get_package_share_directory
 from launch.substitutions import LocalSubstitution, PathJoinSubstitution
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from launch.event_handlers import OnShutdown
 
 def generate_launch_description():
+    ros_gz_sim_path = get_package_share_directory('ros_gz_sim')
+    gazebo_launch_path = PathJoinSubstitution([ros_gz_sim_path, 'launch', 'gz_sim.launch.py'])
     return launch.LaunchDescription([
+        SetEnvironmentVariable(
+            'GZ_SIM_RESOURCE_PATH',
+            PathJoinSubstitution([FindPackageShare('trilateration_nodes'), 'models'])
+        ),
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(gazebo_launch_path),
+            launch_arguments={
+                'gz_args' : PathJoinSubstitution([FindPackageShare('trilateration_nodes'), 'worlds/simworld.sdf']),
+                'on_exit_shutdown' : 'True'
+            }.items(),
+        ),
         Node(
             package='ros_gz_bridge',
             executable='parameter_bridge',
@@ -43,22 +58,4 @@ def generate_launch_description():
         ),
     ])
 
-'''
-TODO: fix gazebo launch issue
-    ros_gz_sim_path = get_package_share_directory('ros_gz_sim')
-    gazebo_launch_path = PathJoinSubstitution([ros_gz_sim_path, 'launch', 'gz_sim.launch.py'])
 
-
-        SetEnvironmentVariable(
-            'GZ_SIM_RESOURCE_PATH',
-            PathJoinSubstitution([FindPackageShare('trilateration_nodes'), 'models'])
-        ),
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(gazebo_launch_path),
-            launch_arguments={
-                'gz_args' : PathJoinSubstitution([FindPackageShare('trilateration_nodes'), 'worlds/simworld.sdf']),
-                'on_exit_shutdown' : 'True'
-            }.items(),
-        ),
-
-'''
