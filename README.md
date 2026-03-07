@@ -89,10 +89,10 @@ source ~/.bashrc
 The forest fire world and fire model must be copied into PX4's simulation directory:
 
 ```bash
-cp src/trilateration_nodes/worlds/forest_fire.sdf \
+cp forest_fire.sdf \
    ~/PX4-Autopilot/Tools/simulation/gz/worlds/
 
-cp -r src/trilateration_nodes/models/fire_gz_harmonic \
+cp -r src/trilateration_nodes/models/firemodel \
    ~/PX4-Autopilot/Tools/simulation/gz/models/
 ```
 
