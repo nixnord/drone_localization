@@ -8,11 +8,15 @@ Panels:
         - /Status1
         - /Grid1
         - /Pose1
-        - /Pose1/Status1
         - /Pose2
-        - /Pose2/Status1
         - /Path1
+        - /Path1/Status1
+        - /Path1/Topic1
         - /Path2
+        - /Pose3
+        - /Pose3/Topic1
+        - /Path3
+        - /Path3/Topic1
       Splitter Ratio: 0.5
     Tree Height: 699
   - Class: rviz_common/Selection
@@ -39,7 +43,7 @@ Visualization Manager:
     - Alpha: 0.5
       Cell Size: 5
       Class: rviz_default_plugins/Grid
-      Color: 160; 160; 164
+      Color: 0; 0; 0
       Enabled: true
       Line Style:
         Line Width: 0.029999999329447746
@@ -150,9 +154,57 @@ Visualization Manager:
         Reliability Policy: Reliable
         Value: /drone/realpath
       Value: true
+    - Alpha: 1
+      Axes Length: 1
+      Axes Radius: 0.10000000149011612
+      Class: rviz_default_plugins/Pose
+      Color: 0; 85; 255
+      Enabled: true
+      Head Length: 0
+      Head Radius: 0
+      Name: Pose
+      Shaft Length: 0.5
+      Shaft Radius: 0.5
+      Shape: Arrow
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /drone/filteredpose
+      Value: true
+    - Alpha: 1
+      Buffer Length: 1
+      Class: rviz_default_plugins/Path
+      Color: 0; 85; 255
+      Enabled: true
+      Head Diameter: 0.30000001192092896
+      Head Length: 0.20000000298023224
+      Length: 0.30000001192092896
+      Line Style: Lines
+      Line Width: 0.029999999329447746
+      Name: Path
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Pose Color: 255; 85; 255
+      Pose Style: None
+      Radius: 0.029999999329447746
+      Shaft Diameter: 0.10000000149011612
+      Shaft Length: 0.10000000149011612
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /drone/filteredpath
+      Value: true
   Enabled: true
   Global Options:
-    Background Color: 48; 48; 48
+    Background Color: 129; 129; 129
     Fixed Frame: world
     Frame Rate: 30
   Name: root
@@ -195,26 +247,21 @@ Visualization Manager:
   Value: true
   Views:
     Current:
-      Class: rviz_default_plugins/Orbit
-      Distance: 84.48375701904297
+      Angle: 0
+      Class: rviz_default_plugins/TopDownOrtho
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
-      Focal Point:
-        X: 29.76780891418457
-        Y: 32.45576095581055
-        Z: -4.70104455947876
-      Focal Shape Fixed Size: true
-      Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.9353981018066406
+      Scale: 10
       Target Frame: <Fixed Frame>
-      Value: Orbit (rviz)
-      Yaw: 3.543574571609497
+      Value: TopDownOrtho (rviz_default_plugins)
+      X: 29.76780891418457
+      Y: 32.45576095581055
     Saved: ~
 Window Geometry:
   Displays:

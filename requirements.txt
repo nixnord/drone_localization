@@ -1,0 +1,7 @@
+numpy
+scipy
+requests
+opencv-python
+fastapi
+uvicorn
+tensorflow[and-cuda]==2.20.0

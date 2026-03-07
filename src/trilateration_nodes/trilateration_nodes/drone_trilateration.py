@@ -6,7 +6,7 @@ import numpy
 class TrilaterationNode(Node):
 
     def __init__(self):
-        super().__init__("trilateration_node")
+        super().__init__("drone_locator")
         self.subscription = self.create_subscription(
             Float64MultiArray,
             "/lora/range",
@@ -20,9 +20,9 @@ class TrilaterationNode(Node):
         )
 
         self.gs_vectors = numpy.array([
-            [0, 0], # GS1
-            [80, 0], # GS2
-            [40, 69.28] # GS3
+            [ 0.0,   34.64],   # GS1 — North vertex
+            [-30.0, -17.32],   # GS2 — South-West vertex
+            [ 30.0, -17.32],   # GS3 — South-East vertex
         ])
 
         self.get_logger().info("Trilateration node has started!")
@@ -37,12 +37,12 @@ class TrilaterationNode(Node):
         A: numpy array (2x2 matrix)
         B: numpy array (2x1 matrix)
         '''
-        dist = array.data # [ d1, d2, d3, height ]
+        dist = array.data # [ d1, d2, d3 ]
         x1, y1 = self.gs_vectors[0]
         d1 = dist[0]
         A = []
         B = []
-        for vector, d in zip(self.gs_vectors[1:], dist[1:3]):
+        for vector, d in zip(self.gs_vectors[1:], dist[1:]):
             arr1 = [ 2*(vector[0] - x1), 2*(vector[1] - y1) ]
             constant = d1**2 - d**2 - x1**2 + vector[0]**2 - y1**2 + vector[1]**2
             A.append(arr1)
@@ -51,7 +51,7 @@ class TrilaterationNode(Node):
         try:
             pos, r, ra, s = numpy.linalg.lstsq(A, B, rcond=None)
             message = Float64MultiArray()
-            message.data = [float(pos[0]), float(pos[1]), float(dist[3])] # [ x, y, z ]
+            message.data = [float(pos[0]), float(pos[1])] # [ x, y ]
             self.pub.publish(message)
         except Exception as e:
             self.get_logger().error(e)

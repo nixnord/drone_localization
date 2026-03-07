@@ -31,9 +31,11 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            "rangefinder = trilateration_nodes.rangefinder:main",
-            "trilateration_node = trilateration_nodes.trilateration:main",
-            "visualizernode = trilateration_nodes.visualizer:main"
+            "drone_ranging = trilateration_nodes.drone_rangefinder:main",
+            "drone_locator = trilateration_nodes.drone_trilateration:main",
+            "visualizernode = trilateration_nodes.visualizer:main",
+            "mobility = trilateration_nodes.motion:main",
+            "fire_detection_client = trilateration_nodes.fire_detection:main"
         ],
     },
 )

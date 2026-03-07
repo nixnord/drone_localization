@@ -4,6 +4,25 @@
         <static>false</static>
 
         <link name="base_link">
+        <sensor name="imu_sensor" type="imu">
+            <always_on>1</always_on>
+            <update_rate>100</update_rate>
+            <visualize>true</visualize>
+            <topic>imu</topic>
+            <imu>
+                <angular_velocity>
+                    <x><noise type="gaussian"><mean>0.0</mean><stddev>2e-4</stddev></noise></x>
+                    <y><noise type="gaussian"><mean>0.0</mean><stddev>2e-4</stddev></noise></y>
+                    <z><noise type="gaussian"><mean>0.0</mean><stddev>2e-4</stddev></noise></z>
+                </angular_velocity>
+                <linear_acceleration>
+                    <x><noise type="gaussian"><mean>0.0</mean><stddev>1.7e-2</stddev></noise></x>
+                    <y><noise type="gaussian"><mean>0.0</mean><stddev>1.7e-2</stddev></noise></y>
+                    <z><noise type="gaussian"><mean>0.0</mean><stddev>1.7e-2</stddev></noise></z>
+                </linear_acceleration>
+            </imu>
+        </sensor>
+        <gravity>false</gravity>
             <inertial>
                 <mass>1.0</mass>
                 <inertia>
@@ -31,9 +50,15 @@
                 </geometry>
             </collision>
         </link>
+        <plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu">
+        </plugin>
         <plugin filename="gz-sim-pose-publisher-system" name="gz::sim::systems::PosePublisher">
             <publish_model_pose>true</publish_model_pose>
             <update_frequency>20</update_frequency>
+        </plugin>
+        <plugin filename="gz-sim-velocity-control-system" name="gz::sim::systems::VelocityControl">
+            <initial_linear_velocity>0 0 0</initial_linear_velocity>
+            <initial_angular_velocity>0 0 0</initial_angular_velocity>
         </plugin>
     </model>
 </sdf>
