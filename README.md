@@ -1,6 +1,6 @@
 # drone_localization
 
-GPS-denied drone localization using LoRa trilateration, Kalman Filter fusion, and autonomous fire detection — built on PX4 SITL, ROS2 Humble, and Gazebo Harmonic.
+GPS-denied drone localization using LoRa trilateration, Kalman Filter fusion, and autonomous fire detection. Built on PX4 SITL, ROS2 Humble, and Gazebo Harmonic.
 
 
 ## System Architecture
@@ -8,14 +8,14 @@ GPS-denied drone localization using LoRa trilateration, Kalman Filter fusion, an
 ```
 Gazebo Harmonic (gz_x500_mono_cam)
         │
-        ├── /fmu/out/sensor_combined         → Kalman Filter (IMU accel, 250 Hz)
-        ├── /fmu/out/vehicle_attitude        → Attitude quaternion (body→ENU rotation)
-        ├── /fmu/out/vehicle_local_position  → Ground truth (EKF2, for comparison)
+        ├── /fmu/out/sensor_combined         → Kalman Filter (IMU accelerometer data)
+        ├── /fmu/out/vehicle_attitude        → Attitude quaternion (body → ENU rotation)
+        ├── /fmu/out/vehicle_local_position  → Ground truth (EKF2, for comparison with the estimates)
         │
         ├── Simulated LoRa ground stations
-        │     └── drone_rangefinder.py       → /lora/range
-        │           └── drone_trilateration.py → /drone/estimatedpose (ENU x,y)
-        │                 └── visualizer.py  → /drone/filteredpose (Kalman Filter refined)
+        │     └── drone_rangefinder.py       → /lora/range (distance of the drone from each ground station)
+        │           └── drone_trilateration.py → /drone/estimatedpose (ENU x,y coordinates of the drone)
+        │                 └── visualizer.py  → /drone/filteredpose (Kalman Filter refined data)
         │
         └── Camera sensor
               └── ros_gz_bridge             → /drone/camera/image_raw
@@ -34,7 +34,6 @@ These must be installed manually before running `setup.sh`.
 Follow the [official ROS2 Humble installation guide](https://docs.ros.org/en/humble/Installation.html).
 
 ```bash
-# Verify
 ros2 --version
 ```
 
@@ -51,7 +50,7 @@ git clone https://github.com/PX4/PX4-Autopilot.git --recursive ~/PX4-Autopilot
 bash ~/PX4-Autopilot/Tools/setup/ubuntu.sh
 ```
 
-> ⚠️ This project was developed against **PX4 v1.17.0-alpha1**. Using a different version may cause `px4_msgs` message definition mismatches.
+> ⚠️ This project was developed against **v1.17.0-alpha1**. Using a different version may cause `px4_msgs` message definition mismatches.
 
 ### 4. GPU Driver (for fire detection inference)
 
@@ -86,13 +85,16 @@ source ~/.bashrc
 
 ## Gazebo World and Fire Model Setup
 
-The forest fire world and fire model must be copied into PX4's simulation directory:
+The forest fire world, fire model and the ground station model must be copied into PX4's simulation directory:
 
 ```bash
-cp forest_fire.sdf \
+cp src/trilateration_nodes/worlds/forestfire.sdf \
    ~/PX4-Autopilot/Tools/simulation/gz/worlds/
 
 cp -r src/trilateration_nodes/models/firemodel \
+   ~/PX4-Autopilot/Tools/simulation/gz/models/
+
+cp -r src/trilateration_nodes/models/ground_station \
    ~/PX4-Autopilot/Tools/simulation/gz/models/
 ```
 
@@ -103,15 +105,15 @@ Open 5 terminals and run each command in order:
 ```bash
 MicroXRCEAgent udp4 -p 8888
 
-PX4_GZ_WORLD=forest_fire make px4_sitl gz_x500_mono_cam
+PX4_GZ_WORLD=forestfire make px4_sitl gz_x500_mono_cam
 
 ros2 run ros_gz_bridge parameter_bridge \
-  /world/forest_fire/model/x500_mono_cam_0/link/camera_link/sensor/camera/image@sensor_msgs/msg/Image@gz.msgs.Image \
+  /world/forestfire/model/x500_mono_cam_0/link/camera_link/sensor/camera/image@sensor_msgs/msg/Image@gz.msgs.Image \
   --ros-args \
-  -r /world/forest_fire/model/x500_mono_cam_0/link/camera_link/sensor/camera/image:=/drone/camera/image_raw
+  -r /world/forestfire/model/x500_mono_cam_0/link/camera_link/sensor/camera/image:=/drone/camera/image_raw
 
-cd src/trilateration_nodes
-uvicorn fire_server:app --host 0.0.0.0 --port 8000
+cd ai_engine
+uvicorn fastapi_server:app --host 0.0.0.0 --port 8000
 
 ros2 launch trilateration_nodes simulation.launch.py
 ```
@@ -146,7 +148,11 @@ Example output:
   "mask_file": "abc123.png"
 }
 ```
+The output can also be viewed by running the ROS2 node `fire_detection.py`
 
+```bash
+ros2 run trilateration_nodes fire_detection
+```
 
 ## Ground Station Layout
 
@@ -171,7 +177,7 @@ Circumradius (drone to each station): **34.64m**
 | Ubuntu | 22.04 LTS |
 | ROS2 | Humble (LTS) |
 | Gazebo | Harmonic |
-| PX4-Autopilot | v1.14 |
+| PX4-Autopilot | v1.17.0-alpha1 |
 | Python | 3.10 |
 | TensorFlow | 2.20.0 |
 | CUDA | 12.x |

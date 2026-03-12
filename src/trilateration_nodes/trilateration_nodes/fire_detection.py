@@ -1,3 +1,5 @@
+# thanks claude
+
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
@@ -13,7 +15,7 @@ import json
 # Config
 # ---------------------------------------------------------------------------
 FASTAPI_URL        = "http://127.0.0.1:8000/infer"
-INFERENCE_RATE_HZ  = 10       # timer rate — frames sent to FastAPI per second
+INFERENCE_RATE_HZ  = 5       # timer rate — frames sent to FastAPI per second
 JPEG_QUALITY       = 85       # JPEG encode quality (0-100)
 REQUEST_TIMEOUT_S  = 2.0      # HTTP request timeout in seconds
 

@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <sdf version="1.9">
-  <world name="forest_fire">
+  <world name="forestfire">
     <physics type="ode">
       <max_step_size>0.004</max_step_size>
       <real_time_factor>1.0</real_time_factor>
@@ -15,8 +15,6 @@
       <background>0.7 0.7 0.7 1</background>
       <shadows>true</shadows>
     </scene>
-
-    <!-- ===== Gazebo Harmonic system plugins ===== -->
     <plugin
       filename="gz-sim-physics-system"
       name="gz::sim::systems::Physics">
@@ -33,8 +31,24 @@
       filename="gz-sim-particle-emitter-system"
       name="gz::sim::systems::ParticleEmitter">
     </plugin>
+    <plugin
+      filename="gz-sim-sensors-system"
+      name="gz::sim::systems::Sensors">
+    <render_engine>ogre2</render_engine>
+    </plugin>
+    <plugin
+      filename="gz-sim-imu-system"
+      name="gz::sim::systems::Imu"/>
+    <plugin
+      filename="gz-sim-air-pressure-system"
+      name="gz::sim::systems::AirPressure"/>
+    <plugin
+      filename="gz-sim-magnetometer-system"
+      name="gz::sim::systems::Magnetometer"/>
+    <plugin
+      filename="gz-sim-navsat-system"
+      name="gz::sim::systems::NavSat"/>
 
-    <!-- ===== Ground / Grass ===== -->
     <include>
       <uri>https://fuel.ignitionrobotics.org/1.0/hexarotor/models/grasspatch</uri>
       <name>grasspatch</name>
@@ -70,8 +84,6 @@
       <name>grasspatch_5</name>
       <pose>16.5899 26.9995 0 0 -0 0</pose>
     </include>
-
-    <!-- ===== Trees ===== -->
     <include>
       <uri>https://fuel.ignitionrobotics.org/1.0/OpenRobotics/models/Oak Tree</uri>
       <name>Pine Tree_11</name>
@@ -222,8 +234,6 @@
       <name>Pine Tree_19_19</name>
       <pose>-3.1997 32.8927 0 0 -0 0</pose>
     </include>
-
-    <!-- ===== Fire Model (Gazebo Harmonic) ===== -->
     <include>
       <uri>model://firemodel</uri>
       <name>fire_tree_11</name>
@@ -374,8 +384,21 @@
       <name>fire_tree_19_19</name>
       <pose>-3.1997 32.8927 4.0 0 0 0</pose>
     </include>
-
-    <!-- ===== Lighting ===== -->
+    <include>
+      <uri>model://ground_station</uri>
+      <name>ground_station_1</name>
+      <pose>0.0 34.64 0 0 0 0</pose>
+    </include>
+    <include>
+      <uri>model://ground_station</uri>
+      <name>ground_station_2</name>
+      <pose>-30.0 -17.32 0 0 0 0</pose>
+    </include>
+    <include>
+      <uri>model://ground_station</uri>
+      <name>ground_station_3</name>
+      <pose>30.0 -17.32 0 0 0 0</pose>
+    </include>
     <light name="sunUTC" type="directional">
       <pose>0 0 500 0 -0 0</pose>
       <cast_shadows>true</cast_shadows>
