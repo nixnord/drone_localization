@@ -6,7 +6,6 @@ from geometry_msgs.msg import PoseStamped
 from px4_msgs.msg import VehicleAttitude, SensorCombined, VehicleLocalPosition
 from scipy.spatial.transform import Rotation
 import time
-from time import sleep
 from nav_msgs.msg import Path
 from trilateration_nodes.kalman_filter import KalmanFilterConstantAcceleration
 import numpy
@@ -20,8 +19,8 @@ QOS_PROFILE = QoSProfile(
 
 GRAVITY_ENU  = numpy.array([0.0, 0.0, -9.81])
 R_NED_TO_ENU = Rotation.from_euler('ZX', [90, 180], degrees=True)
-R_LORA = numpy.diag([25.0, 25.0])
-R_IMU = numpy.diag([0.04, 0.04])
+R_LORA = numpy.diag([4.0, 4.0])
+R_IMU = numpy.diag([0.01, 0.01])
 
 def convert_ned_to_enu(x, y, z):
     return float(y), float(x), float(-z)
@@ -153,19 +152,20 @@ class Visualizer(Node):
         # that means acceleration will have its latest values but we need the first
         # lora callback before this gets executed
         dt = self._compute_dt()
-        self._kf.predict_state(dt, sigma_x=0.02, sigma_y=0.02)
+        self._kf.predict_state(dt, sigma_x=0.01, sigma_y=0.01)
         self._kf.update_state_acceleration(
-            [float(acclereration_enu[0]), self._ax_enu, self._ay_enu],
+            [self._ax_enu, self._ay_enu],
             R_IMU
         )
         # self._publish_values()
 
     def estimated_callback(self, array: Float64MultiArray):
 
-        if self.true_position is None or len(self.true_position.poses) == 0: return
+        if self._true_position is None: return
 
         drone_est_position = array.data
         if not array.data: return
+
         dt = self._compute_dt()
         if dt is None:
             # for the first call, dt is initially None. so the initial positions
@@ -180,22 +180,20 @@ class Visualizer(Node):
             dx = float(drone_est_position[0]) - self._x_lora_enu
             dy = float(drone_est_position[1]) - self._y_lora_enu
             self._kf = KalmanFilterConstantAcceleration(
-                self._x_lora_enu, self._y_lora_enu,
+                drone_est_position[0], drone_est_position[1],
                 dx/dt, dy/dt, self._ax_enu, self._ay_enu,
-                0.1, 0.1, 0.31, 0.32, 0.035, 0.036
+                0.2, 0.2, 0.04, 0.041, 0.01, 0.012
             )
             return
         
         self._x_lora_enu = float(drone_est_position[0])
         self._y_lora_enu = float(drone_est_position[1])
 
-        self._kf.predict_state
+        self._kf.predict_state(dt, 0.065, 0.066)
         measurement = [self._x_lora_enu, self._y_lora_enu]
         self._kf.update_state_position(measurement, R_LORA)
 
         drone_true_position = self._true_position[:2]
-
-        measurement = drone_est_position[:2]
 
         kalman_x = self.kf.state_vector[0,0]
         kalman_y = self.kf.state_vector[1,0]
@@ -203,7 +201,7 @@ class Visualizer(Node):
         estpos = self._make_pose(self._x_lora_enu, self._y_lora_enu, 0.0)
         self._estimated_path.poses.append(estpos)
         self._estimated_path.header.stamp = estpos.header.stamp
-        realpos = self._make_pose(float(drone_true_position[1]), float(drone_true_position[2]), 0.0)
+        realpos = self._make_pose(float(drone_true_position[0]), float(drone_true_position[1]), 0.0)
         self._real_path.poses.append(estpos)
         self._real_path.header.stamp = realpos.header.stamp
         filtered_pose = self._make_pose(kalman_x, kalman_y, 0.0)
@@ -214,12 +212,18 @@ class Visualizer(Node):
 
         self._pub_estimated_pose.publish(estpos)
         self._pub_true_pose.publish(realpos)
-        self._pub_estimated_path.publish(self.estimated_path)
-        self._pub_true_path.publish(self.real_path)
+        self._pub_estimated_path.publish(self._estimated_path)
+        self._pub_true_path.publish(self._real_path)
         self._pub_filtered_pose.publish(filtered_pose)
-        self._pub_filtered_path.publish(self.filtered_path)
+        self._pub_filtered_path.publish(self._filtered_path)
 
-        self.get_logger().info(f"TP:{drone_true_position[:2]}EP:{list(array.data)[:2]}KP:{[kalman_x, kalman_y]}")
+        self.get_logger.info(f"""
+
+TP:{drone_true_position[0]:.2f},{drone_true_position[1]:.2f}
+EP:{self._x_lora_enu:.2f},{self._y_lora_enu:.2f}
+KF:{kalman_x:.2f},{kalman_y:.2f}
+
+""")
 
 def main(args=None):
     rclpy.init(args=args)
